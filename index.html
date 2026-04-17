@@ -1,0 +1,994 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#1B4F72">
+<title>Regents Playbook · Global 10R</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%231B4F72'/%3E%3Ctext x='50%25' y='55%25' font-family='system-ui,sans-serif' font-size='28' font-weight='800' fill='%23fff' text-anchor='middle' dominant-baseline='middle'%3EG10%3C/text%3E%3C/svg%3E">
+<style>
+  :root {
+    /* v2 design system — slate blue primary, warm amber accent */
+    --slate: #1B4F72;
+    --slate-dark: #113651;
+    --amber: #CA6F1E;
+    --tier1-red: #C41E3A;
+    --tier2-orange: #C07A1C;
+    --thread-green: #1B4332;
+    --cream: #F5F2E8;
+    --charcoal: #1A1A1A;
+    --muted: #6B6B6B;
+    --card-shadow: 0 4px 20px rgba(0,0,0,0.08);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+  html, body {
+    height: 100%;
+    background: var(--charcoal);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    overflow: hidden;
+    overscroll-behavior: none;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  /* APP SHELL */
+  .app {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    background: var(--charcoal);
+  }
+
+  /* HEADER TABS */
+  .tabs {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    background: var(--charcoal);
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    padding: env(safe-area-inset-top) 0 0 0;
+    flex-shrink: 0;
+  }
+  .tab {
+    background: none;
+    border: none;
+    color: rgba(255,255,255,0.4);
+    padding: 12px 8px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+    transition: color 0.2s, border-color 0.2s;
+    font-family: inherit;
+    text-transform: uppercase;
+  }
+  .tab.active {
+    color: #fff;
+    border-bottom-color: var(--slate);
+  }
+  .tab-label {
+    display: block;
+    font-size: 9px;
+    font-weight: 500;
+    margin-top: 2px;
+    opacity: 0.6;
+    letter-spacing: 0.5px;
+  }
+
+  /* DECK CONTAINER */
+  .deck-container {
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .deck {
+    position: absolute;
+    inset: 0;
+    display: none;
+  }
+  .deck.active { display: block; }
+
+  .cards {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    transition: transform 0.35s cubic-bezier(0.2, 0.9, 0.3, 1);
+    will-change: transform;
+  }
+
+  .card {
+    flex: 0 0 100%;
+    width: 100%;
+    height: 100%;
+    padding: 16px 14px 64px 14px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* CARD STYLES */
+  .card-inner {
+    flex: 1;
+    background: var(--cream);
+    border-radius: 18px;
+    box-shadow: var(--card-shadow);
+    padding: 18px 20px 16px 20px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    min-height: 22px;
+    margin-bottom: 4px;
+  }
+
+  .tier-flag {
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: 1.2px;
+    padding: 3px 8px;
+    border-radius: 3px;
+    text-transform: uppercase;
+  }
+  .tier-flag.tier-1 {
+    background: var(--tier1-red);
+    color: #fff;
+  }
+  .tier-flag.tier-2 {
+    background: var(--tier2-orange);
+    color: #fff;
+  }
+
+  .card-number {
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--muted);
+    letter-spacing: 1px;
+    margin-left: auto;
+  }
+
+  .card-icon {
+    font-size: 44px;
+    text-align: center;
+    margin: 4px 0 10px 0;
+    line-height: 1;
+  }
+
+  .card-title {
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--charcoal);
+    line-height: 1.15;
+    margin-bottom: 12px;
+    letter-spacing: -0.3px;
+    text-align: center;
+  }
+
+  .card-op {
+    font-size: 16px;
+    font-weight: 500;
+    line-height: 1.42;
+    color: var(--charcoal);
+    flex: 1;
+    display: flex;
+    align-items: center;
+    text-align: center;
+  }
+
+  .card-meta {
+    margin-top: 12px;
+    padding-top: 10px;
+    border-top: 2px solid rgba(0,0,0,0.08);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .exam-term {
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--amber);
+    letter-spacing: 1.3px;
+    text-transform: uppercase;
+  }
+
+  .thread-tag {
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--thread-green);
+    background: rgba(27, 67, 50, 0.1);
+    padding: 3px 7px;
+    border-radius: 4px;
+    letter-spacing: 0.3px;
+  }
+
+  .pointer-footer {
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px dashed rgba(0,0,0,0.12);
+  }
+  .pointer-line {
+    font-size: 11px;
+    font-style: italic;
+    color: var(--muted);
+    line-height: 1.35;
+    margin-bottom: 3px;
+  }
+  .pointer-line.pattern-line {
+    color: var(--thread-green);
+  }
+  .pointer-line:last-child { margin-bottom: 0; }
+
+  /* INTRO CARDS (test-day cards) — slate blue instead of US11R red */
+  .card.intro .card-inner {
+    background: var(--slate);
+    color: #fff;
+  }
+  .card.intro .card-title,
+  .card.intro .card-op {
+    color: #fff;
+  }
+  .card.intro .card-number {
+    color: rgba(255,255,255,0.7);
+  }
+  .card.intro .exam-term {
+    color: #fff;
+  }
+  .card.intro .card-meta {
+    border-top-color: rgba(255,255,255,0.25);
+  }
+
+  /* FUNNEL CARD */
+  .card.funnel .card-inner {
+    background: var(--thread-green);
+    color: #fff;
+  }
+  .card.funnel .card-title,
+  .card.funnel .card-op {
+    color: #fff;
+  }
+  .card.funnel .card-number {
+    color: rgba(255,255,255,0.7);
+  }
+  .card.funnel .exam-term {
+    color: #fff;
+  }
+  .card.funnel .card-meta {
+    border-top-color: rgba(255,255,255,0.25);
+  }
+
+  /* PROGRESS DOTS */
+  .dots {
+    position: absolute;
+    bottom: 18px;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: center;
+    gap: 5px;
+    padding: 0 20px;
+    flex-wrap: wrap;
+    max-height: 40px;
+  }
+  .dot {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.3);
+    transition: background 0.2s, width 0.2s;
+  }
+  .dot.active {
+    background: #fff;
+    width: 18px;
+    border-radius: 3px;
+  }
+
+  /* HINT TEXT */
+  .swipe-hint {
+    position: absolute;
+    bottom: 42px;
+    left: 0;
+    right: 0;
+    text-align: center;
+    color: rgba(255,255,255,0.4);
+    font-size: 10px;
+    letter-spacing: 1px;
+    pointer-events: none;
+    transition: opacity 0.3s;
+    font-weight: 500;
+  }
+  .swipe-hint.hidden { opacity: 0; }
+
+  /* LANDSCAPE / DESKTOP */
+  @media (min-width: 480px) {
+    .app {
+      max-width: 420px;
+      margin: 0 auto;
+      border-left: 1px solid rgba(255,255,255,0.05);
+      border-right: 1px solid rgba(255,255,255,0.05);
+    }
+  }
+
+  @media (min-height: 740px) {
+    .card-icon { font-size: 52px; margin: 8px 0 14px 0; }
+    .card-title { font-size: 25px; margin-bottom: 16px; }
+    .card-op { font-size: 17px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <nav class="tabs">
+    <button class="tab active" data-deck="1">
+      PART 1
+      <span class="tab-label">Test Day + Content</span>
+    </button>
+    <button class="tab" data-deck="2">
+      PART 2
+      <span class="tab-label">CRQ</span>
+    </button>
+    <button class="tab" data-deck="3">
+      PART 3
+      <span class="tab-label">EIE</span>
+    </button>
+  </nav>
+
+  <div class="deck-container" id="deckContainer">
+    <div class="deck active" data-deck-id="1">
+      <div class="cards" id="cards-1"></div>
+      <div class="dots" id="dots-1"></div>
+    </div>
+    <div class="deck" data-deck-id="2">
+      <div class="cards" id="cards-2"></div>
+      <div class="dots" id="dots-2"></div>
+    </div>
+    <div class="deck" data-deck-id="3">
+      <div class="cards" id="cards-3"></div>
+      <div class="dots" id="dots-3"></div>
+    </div>
+    <div class="swipe-hint" id="swipeHint">← SWIPE →</div>
+  </div>
+
+</div>
+
+<script>
+// ============================================================================
+// DATA — GS10R Regents Playbook
+// "For the kid who opens one thing"
+// ============================================================================
+
+const PLAYBOOK = {
+  "meta": {
+    "title": "GS10R Regents Playbook",
+    "subtitle": "For the kid who opens one thing",
+    "version": "1.0"
+  },
+  "decks": {
+    "1": {
+      "title": "Part 1 Playbook",
+      "subtitle": "Test-Day + Content",
+      "slides": [
+        {
+          "type": "intro",
+          "icon": "📋",
+          "title": "The Test",
+          "op": "You have 3 hours. Part 1 = 28 multiple choice. Part 2 = 2 CRQ sets. Part 3 = 1 Enduring Issues Essay. One sitting.",
+          "term": "Regents Framework"
+        },
+        {
+          "type": "intro",
+          "icon": "⏱️",
+          "title": "The Math of 3 Hours",
+          "op": "Part 1: ~35 min. Part 2: ~40 min (two CRQ sets). Part 3: 45 min. That leaves ~60 min of buffer. Don't burn it on Part 1.",
+          "term": "Time Allocation"
+        },
+        {
+          "type": "intro",
+          "icon": "🖊️",
+          "title": "Bring This",
+          "op": "Blue or black ink only. Two pens — all answers (MC, CRQ, essay) are in pen. ID. No phone, no smartwatch, no earbuds. Water bottle OK.",
+          "term": "Testing Materials"
+        },
+        {
+          "type": "content",
+          "icon": "🌐",
+          "title": "The World in 1750",
+          "op": "1750 baseline: large agricultural empires (Qing, Ottoman, Mughal). Europe is rising through Atlantic trade. Most people are farmers.",
+          "term": "Pre-Industrial World",
+          "thread": "Economic Development",
+          "tier": 3,
+          "pointer": "Want more? → Content Review · GC_Brief_Unit10.1",
+          "pointer2": "See the pattern → Enduring Issues \"Threads\""
+        },
+        {
+          "type": "content",
+          "icon": "💡",
+          "title": "The Enlightenment",
+          "op": "Enlightenment = reason applied to government. Locke: natural rights. Montesquieu: separation of powers. Rousseau: popular sovereignty.",
+          "term": "Natural Rights",
+          "thread": "Cultural Exchange / Diffusion",
+          "tier": 2,
+          "pointer": "Want more? → Content Review · GC_Brief_Unit10.2",
+          "pointer2": "See the pattern → Enduring Issues \"Threads\""
+        },
+        {
+          "type": "content",
+          "icon": "🗽",
+          "title": "Revolutions of Rights",
+          "op": "American (1776), French (1789), Haitian (1791), Latin American (1810s–20s) — same pattern: Enlightenment ideas + colonial grievance → independence.",
+          "term": "Democratic Revolutions",
+          "thread": "Nationalism",
+          "tier": 2,
+          "pointer": "Want more? → Content Review · GC_Brief_Unit10.2",
+          "pointer2": "See the pattern → Enduring Issues \"Threads\""
+        },
+        {
+          "type": "content",
+          "icon": "🏭",
+          "title": "The Industrial Revolution",
+          "op": "Steam, factories, cities. Started in Britain (1750s), spread to Europe + US. Created new wealth AND new working-class misery.",
+          "term": "Industrialization",
+          "thread": "Scientific / Technological Change",
+          "tier": 1,
+          "pointer": "Want more? → Content Review · GC_Brief_Unit10.3",
+          "pointer2": "See the pattern → Enduring Issues \"Threads\""
+        },
+        {
+          "type": "content",
+          "icon": "✊",
+          "title": "Responses to Industry",
+          "op": "Bad conditions → labor unions + socialism + reform laws. Marx said workers would revolt. Reformers fixed it piece by piece.",
+          "term": "Labor & Reform",
+          "thread": "Inequality",
+          "tier": 2,
+          "pointer": "Want more? → Content Review · GC_Brief_Unit10.3",
+          "pointer2": "See the pattern → Enduring Issues \"Threads\""
+        },
+        {
+          "type": "content",
+          "icon": "🌍",
+          "title": "European Imperialism",
+          "op": "1870s–1914: Europeans took most of Africa + Asia. Motives: raw materials, markets, naval bases, 'civilizing mission' (racist cover).",
+          "term": "Imperialism",
+          "thread": "Imperialism / Abuse of Power",
+          "tier": 1,
+          "pointer": "Want more? → Content Review · GC_Brief_Unit10.4",
+          "pointer2": "See the pattern → Enduring Issues \"Threads\""
+        },
+        {
+          "type": "content",
+          "icon": "🩸",
+          "title": "Belgian Congo",
+          "op": "King Leopold II ran the Congo as personal property (1885–1908). Rubber quotas enforced by amputation. Millions died. The Jan '25 EIE doc.",
+          "term": "Human Rights Violations",
+          "thread": "Human Rights Violations",
+          "tier": 1,
+          "pointer": "Want more? → Content Review · GC_Brief_Unit10.4",
+          "pointer2": "See the pattern → Enduring Issues \"Threads\""
+        },
+        {
+          "type": "content",
+          "icon": "📜",
+          "title": "Treaty of Versailles",
+          "op": "1919: Germany blamed for WWI. War guilt clause, reparations, lost land. Planted the grievance Hitler used 14 years later.",
+          "term": "Versailles",
+          "thread": "Conflict",
+          "tier": 1,
+          "pointer": "Want more? → Content Review · GC_Brief_Unit10.5",
+          "pointer2": "See the pattern → Enduring Issues \"Threads\""
+        },
+        {
+          "type": "content",
+          "icon": "⚡",
+          "title": "Rise of Dictators",
+          "op": "1920s–30s: Depression + Versailles grievance → Mussolini (Italy), Hitler (Germany), Stalin (USSR), militarists (Japan). Same pattern, different countries.",
+          "term": "Totalitarianism",
+          "thread": "Imperialism / Abuse of Power",
+          "tier": 1,
+          "pointer": "Want more? → Content Review · GC_Brief_Unit10.5",
+          "pointer2": "See the pattern → Enduring Issues \"Threads\""
+        },
+        {
+          "type": "content",
+          "icon": "✡️",
+          "title": "The Holocaust",
+          "op": "Nazi Germany murdered 6 million Jews + 5 million others. State policy, industrialized genocide. Led to the UDHR (1948).",
+          "term": "Holocaust",
+          "thread": "Human Rights Violations",
+          "tier": 1,
+          "pointer": "Want more? → Content Review · GC_Brief_Unit10.5",
+          "pointer2": "See the pattern → Enduring Issues \"Threads\""
+        },
+        {
+          "type": "content",
+          "icon": "🗺️",
+          "title": "Decolonization",
+          "op": "After WWII, European empires collapsed. India (1947), Ghana (1957), Kenya (1963), Vietnam (1954). Nationalism + exhausted empires.",
+          "term": "Decolonization",
+          "thread": "Nationalism",
+          "tier": 2,
+          "pointer": "Want more? → Content Review · GC_Brief_Unit10.6",
+          "pointer2": "See the pattern → Enduring Issues \"Threads\""
+        },
+        {
+          "type": "content",
+          "icon": "❄️",
+          "title": "The Cold War",
+          "op": "1945–1991: US vs. USSR, no direct war. Containment, arms race, proxy wars (Korea, Vietnam, Afghanistan). Ends with Soviet collapse.",
+          "term": "Cold War",
+          "thread": "Conflict",
+          "tier": 1,
+          "pointer": "Want more? → Content Review · GC_Brief_Unit10.7",
+          "pointer2": "See the pattern → Enduring Issues \"Threads\""
+        },
+        {
+          "type": "content",
+          "icon": "🧱",
+          "title": "The Berlin Wall",
+          "op": "1961–1989: Divided East from West Berlin. Symbol of the whole Cold War. Fell Nov. 9, 1989. Two years later, USSR gone.",
+          "term": "Iron Curtain",
+          "thread": "Conflict",
+          "tier": 2,
+          "pointer": "Want more? → Content Review · GC_Brief_Unit10.7",
+          "pointer2": "See the pattern → Enduring Issues \"Threads\""
+        },
+        {
+          "type": "content",
+          "icon": "🇨🇳",
+          "title": "Mao's China",
+          "op": "1949: Communists win civil war. Great Leap Forward (1958) = famine, 30M+ dead. Cultural Revolution (1966) = purge of intellectuals.",
+          "term": "Communism in China",
+          "thread": "Imperialism / Abuse of Power",
+          "tier": 1,
+          "pointer": "Want more? → Content Review · GC_Brief_Unit10.7",
+          "pointer2": "See the pattern → Enduring Issues \"Threads\""
+        },
+        {
+          "type": "content",
+          "icon": "🕌",
+          "title": "Iranian Revolution",
+          "op": "1979: Shah's Westernization rejected. Ayatollah Khomeini = Islamic Republic. Key test case: modernization vs. tradition.",
+          "term": "Revolution",
+          "thread": "Cultural Exchange / Diffusion",
+          "tier": 2,
+          "pointer": "Want more? → Content Review · GC_Brief_Unit10.8",
+          "pointer2": "See the pattern → Enduring Issues \"Threads\""
+        },
+        {
+          "type": "content",
+          "icon": "🌐",
+          "title": "Globalization",
+          "op": "1990–present: tech + trade connect the world. Winners AND losers. NAFTA, EU, WTO — and backlash against them.",
+          "term": "Globalization",
+          "thread": "Economic Development",
+          "tier": 2,
+          "pointer": "Want more? → Content Review · GC_Brief_Unit10.9",
+          "pointer2": "See the pattern → Enduring Issues \"Threads\""
+        },
+        {
+          "type": "content",
+          "icon": "⚖️",
+          "title": "Apartheid + Mandela",
+          "op": "South Africa 1948–1994: racial segregation by law. Mandela jailed 27 years, elected president 1994. Nonviolence + international pressure worked.",
+          "term": "Apartheid",
+          "thread": "Human Rights Violations",
+          "tier": 1,
+          "pointer": "Want more? → Content Review · GC_Brief_Unit10.10",
+          "pointer2": "See the pattern → Enduring Issues \"Threads\""
+        },
+        {
+          "type": "content",
+          "icon": "💀",
+          "title": "Genocides After the Holocaust",
+          "op": "'Never again' happened again: Cambodia (1975), Rwanda (1994), Bosnia (1995), Darfur (2003). The EIE pattern students must recognize.",
+          "term": "Genocide",
+          "thread": "Human Rights Violations",
+          "tier": 1,
+          "pointer": "Want more? → Content Review · GC_Brief_Unit10.10",
+          "pointer2": "See the pattern → Enduring Issues \"Threads\""
+        },
+        {
+          "type": "funnel",
+          "icon": "📚",
+          "title": "If This Helped",
+          "op": "Review briefs have unit-by-unit breakdowns. The EI deck (swipe to Part 3) shows how the 12 patterns connect. Google Classroom has practice Regents exams.",
+          "term": "Next Steps"
+        }
+      ]
+    },
+    "2": {
+      "title": "Part 2 Playbook",
+      "subtitle": "CRQ · Constructed Response",
+      "slides": [
+        {
+          "type": "intro",
+          "icon": "📋",
+          "title": "What Part 2 Is",
+          "op": "Part 2 = 2 CRQ sets. Each set has 2–3 questions tied to 1–2 documents. 20 minutes per set. Short answers, not essays.",
+          "term": "Constructed Response"
+        },
+        {
+          "type": "content",
+          "icon": "🔎",
+          "title": "The Two Question Types",
+          "op": "Type 1: 'Describe the historical circumstances' → context BEFORE the doc. Type 2: 'Explain the extent to which' → analyze a claim using the doc. Different moves.",
+          "term": "CRQ Question Types",
+          "pointer": "Module 3.1 → Regents Skills Review Guide · CRQ Structure"
+        },
+        {
+          "type": "content",
+          "icon": "📍",
+          "title": "Historical Circumstances: 3 Steps",
+          "op": "(1) When + where was this written. (2) What event/situation was happening then. (3) Why THAT situation caused THIS document. All three, every time.",
+          "term": "3-Step Formula",
+          "pointer": "Module 3.2 → Regents Skills Review Guide · Historical Circumstances"
+        },
+        {
+          "type": "content",
+          "icon": "⚠️",
+          "title": "Don't Describe the Document",
+          "op": "The Regents asks for circumstances AROUND the document — not what the document says. If you summarize the source, you scored 0 on Step 3.",
+          "term": "Common Mistake",
+          "pointer": "Module 3.2 → Regents Skills Review Guide · Historical Circumstances"
+        },
+        {
+          "type": "content",
+          "icon": "🎯",
+          "title": "\"Explain the Extent\" Formula",
+          "op": "(1) State the claim you're testing. (2) Find evidence FROM the document. (3) Explain how that evidence supports (or limits) the claim. Don't just quote.",
+          "term": "Extent Formula",
+          "pointer": "Module 3.3 → Regents Skills Review Guide · Extent To Which"
+        },
+        {
+          "type": "content",
+          "icon": "💬",
+          "title": "Evidence Must Be Specific",
+          "op": "Score 1 = vague. Score 2 = relevant but thin. Score 3 = specific + analytical. Name the person. Quote the line. Cite the date.",
+          "term": "Specificity",
+          "pointer": "Module 3.2 + 3.3 → Regents Skills Review Guide"
+        },
+        {
+          "type": "content",
+          "icon": "🔗",
+          "title": "Source the Document First",
+          "op": "Every doc's top line tells you: who, when, where, why. Read the source line BEFORE the document. Half the context is already there.",
+          "term": "Sourcing",
+          "pointer": "Module 2.1 → Regents Skills Review Guide · Reading the Stimulus"
+        },
+        {
+          "type": "content",
+          "icon": "➡️",
+          "title": "Cause + Effect Language",
+          "op": "Most CRQs hinge on cause/effect. Use: 'which led to,' 'as a result of,' 'because,' 'produced.' These phrases signal analysis to the grader.",
+          "term": "Causation",
+          "pointer": "Module 3.1 → Regents Skills Review Guide · CRQ Structure"
+        },
+        {
+          "type": "content",
+          "icon": "📏",
+          "title": "Length: 4–6 Sentences",
+          "op": "Per question. Not a paragraph. Not one sentence. Tight and complete. If you're writing 10 sentences, you're padding.",
+          "term": "CRQ Length"
+        },
+        {
+          "type": "content",
+          "icon": "🧠",
+          "title": "Bring Outside Info (If You Can)",
+          "op": "Not required, but a specific outside fact — a named event, date, or person — lifts a 2 toward a 3. One piece, well-placed.",
+          "term": "Outside Evidence",
+          "pointer": "Module 4.3 → Regents Skills Review Guide · Outside Information"
+        },
+        {
+          "type": "content",
+          "icon": "❌",
+          "title": "Don't Leave Blanks",
+          "op": "Blank = 0. Attempted = at least 1. Every CRQ point is worth the same as an MC question. Attempt every question.",
+          "term": "Completion"
+        },
+        {
+          "type": "content",
+          "icon": "⏰",
+          "title": "Time Check at 15 Min",
+          "op": "15 minutes into a CRQ set, check where you are. Unanswered questions left? Move to them NOW. Don't polish Question 1 and skip Question 3.",
+          "term": "Pacing"
+        },
+        {
+          "type": "content",
+          "icon": "🔁",
+          "title": "Reread Before Moving On",
+          "op": "30 seconds at the end of each set: reread your answers. Did you address the actual question asked, or a question you wished they asked?",
+          "term": "Self-Check"
+        },
+        {
+          "type": "funnel",
+          "icon": "📝",
+          "title": "If This Helped",
+          "op": "CRQ practice sets are on Google Classroom. Model 3-point responses show what full-credit analysis looks like for both question types.",
+          "term": "Next Steps"
+        }
+      ]
+    },
+    "3": {
+      "title": "Part 3 Playbook",
+      "subtitle": "Enduring Issues Essay",
+      "slides": [
+        {
+          "type": "intro",
+          "icon": "✍️",
+          "title": "What the EIE Is",
+          "op": "Enduring Issues Essay = one essay, 45 minutes, 5 documents. Pick an issue that shows up in at least 3 of them. Argue it persists across time.",
+          "term": "Enduring Issues Essay"
+        },
+        {
+          "type": "content",
+          "icon": "🎯",
+          "title": "The Holistic Score",
+          "op": "EIE is scored 0–5 as ONE score. Not added up. Graders look at the whole essay. Your job: hit every move they look for.",
+          "term": "Holistic Rubric",
+          "pointer": "EI Guide v3 → Classroom · EI Essay Student Guide"
+        },
+        {
+          "type": "content",
+          "icon": "🧭",
+          "title": "Pick ONE Enduring Issue",
+          "op": "The 12 issues: Conflict, Nationalism, Inequality, Abuse of Power, Human Rights, Cooperation, and 6 more. Pick the one that fits 3+ docs best.",
+          "term": "Issue Selection",
+          "pointer": "Module 4.1 → Regents Skills Review Guide · EI Identification"
+        },
+        {
+          "type": "content",
+          "icon": "📝",
+          "title": "Define the Issue (Move 1)",
+          "op": "First paragraph: NAME your issue. DEFINE it in one sentence. Example: 'Abuse of Power occurs when those in authority use their position to harm others.'",
+          "term": "Thesis Move",
+          "pointer": "EI Guide v3 → Classroom · EI Essay Student Guide"
+        },
+        {
+          "type": "content",
+          "icon": "📚",
+          "title": "Describe the Issue (Move 2)",
+          "op": "Use 3 documents. For each: say what the doc shows + when + where. This is the 'describe' half. Don't jump to analysis yet.",
+          "term": "Describe",
+          "pointer": "Module 4.2 → Regents Skills Review Guide · Document Selection"
+        },
+        {
+          "type": "content",
+          "icon": "💭",
+          "title": "Explain Why It's Enduring (Move 3)",
+          "op": "After describing each doc, EXPLAIN how it shows the issue lasting across time. 'Although separated by 200 years, both show…' This is where points live.",
+          "term": "Explain",
+          "pointer": "EI Guide v3 → Classroom · EI Essay Student Guide"
+        },
+        {
+          "type": "content",
+          "icon": "⏰",
+          "title": "Describe vs. Explain",
+          "op": "Describe = what happened. Explain = why it matters / what it shows. Graders score BOTH. Students usually do describe and skip explain. Don't.",
+          "term": "The Hidden Gap",
+          "pointer": "EI Guide v3 → Classroom · EI Essay Student Guide"
+        },
+        {
+          "type": "content",
+          "icon": "🧠",
+          "title": "Add Outside Information (Move 4)",
+          "op": "ONE specific thing NOT in any document. A named event, person, or law. Use the appositive: 'The Holocaust, a Nazi genocide of 6M Jews, shows…'",
+          "term": "Outside Evidence",
+          "pointer": "Module 4.3 → Regents Skills Review Guide · Outside Information"
+        },
+        {
+          "type": "content",
+          "icon": "🔀",
+          "title": "Show Complexity (Move 5)",
+          "op": "For a 4 or 5: compare documents across time, show continuity AND change, or note different perspectives. One complexity move in the body.",
+          "term": "Complexity",
+          "pointer": "Module 4.4 → Regents Skills Review Guide · Full Essay Practice"
+        },
+        {
+          "type": "content",
+          "icon": "🧱",
+          "title": "The 5-Paragraph Structure",
+          "op": "Intro (define issue + thesis). Body 1 (Docs A+B). Body 2 (Docs C+D). Body 3 (Doc E + outside info + complexity). Conclusion (why enduring).",
+          "term": "EIE Structure",
+          "pointer": "EI Guide v3 → Classroom · EI Essay Student Guide"
+        },
+        {
+          "type": "content",
+          "icon": "⏱️",
+          "title": "The 45-Minute Breakdown",
+          "op": "5 min: read docs, pick issue. 5 min: outline. 30 min: write (intro + 3 body + conclusion). 5 min: reread + fix.",
+          "term": "EIE Pacing"
+        },
+        {
+          "type": "content",
+          "icon": "🔄",
+          "title": "Conclusion = Why Enduring",
+          "op": "Restate your issue. Answer the 'so what': why does this issue keep reappearing across time and place? One strong final sentence.",
+          "term": "Conclusion"
+        },
+        {
+          "type": "content",
+          "icon": "🚫",
+          "title": "Don't Leave the EIE Blank",
+          "op": "A blank EIE is an automatic major score loss. Even a weak 1 or 2 is worth more than a 0. Write SOMETHING. Follow the structure.",
+          "term": "Completion"
+        },
+        {
+          "type": "content",
+          "icon": "⭐",
+          "title": "The Three Moves That Win",
+          "op": "Three things to do no matter what: (1) Name the issue. (2) Describe AND explain each doc. (3) Add one outside fact with an appositive. Those three earn most points.",
+          "term": "EIE Essentials"
+        },
+        {
+          "type": "funnel",
+          "icon": "📘",
+          "title": "If This Helped",
+          "op": "EI Essay Student Guide v3 has model essays at Score 3, 4, and 5. Google Classroom has practice EIE prompts with scored anchors.",
+          "term": "Next Steps"
+        }
+      ]
+    }
+  }
+};
+
+const DECKS = {};
+for (const [id, deck] of Object.entries(PLAYBOOK.decks)) {
+  DECKS[id] = deck.slides;
+}
+
+// ============================================================================
+// RENDER
+// ============================================================================
+
+function escapeHtml(s) {
+  return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+function renderCard(c, i, total) {
+  const tierBadge = c.tier === 1
+    ? '<span class="tier-flag tier-1">Tier 1 · Every Exam</span>'
+    : c.tier === 2
+    ? '<span class="tier-flag tier-2">Tier 2 · Most Exams</span>'
+    : '';
+
+  const threadTag = c.thread ? `<span class="thread-tag">${escapeHtml(c.thread)}</span>` : '';
+
+  const pointers = [];
+  if (c.pointer) pointers.push(`<div class="pointer-line">${escapeHtml(c.pointer)}</div>`);
+  if (c.pointer2) pointers.push(`<div class="pointer-line pattern-line">${escapeHtml(c.pointer2)}</div>`);
+  const pointerBlock = pointers.length
+    ? `<div class="pointer-footer">${pointers.join('')}</div>`
+    : '';
+
+  return `
+    <div class="card ${c.type}">
+      <div class="card-inner">
+        <div class="card-header">
+          ${tierBadge}
+          <span class="card-number">${String(i + 1).padStart(2, '0')} / ${String(total).padStart(2, '0')}</span>
+        </div>
+        <div class="card-icon">${c.icon}</div>
+        <div class="card-title">${escapeHtml(c.title)}</div>
+        <div class="card-op">${escapeHtml(c.op)}</div>
+        <div class="card-meta">
+          <span class="exam-term">${escapeHtml(c.term)}</span>
+          ${threadTag}
+        </div>
+        ${pointerBlock}
+      </div>
+    </div>
+  `;
+}
+
+function renderDeck(deckId) {
+  const cards = DECKS[deckId];
+  const cardsEl = document.getElementById(`cards-${deckId}`);
+  const dotsEl = document.getElementById(`dots-${deckId}`);
+
+  cardsEl.innerHTML = cards.map((c, i) => renderCard(c, i, cards.length)).join('');
+  dotsEl.innerHTML = cards.map((_, i) => `<span class="dot ${i === 0 ? 'active' : ''}"></span>`).join('');
+}
+
+renderDeck("1");
+renderDeck("2");
+renderDeck("3");
+
+// ============================================================================
+// NAVIGATION
+// ============================================================================
+
+const state = {
+  currentDeck: "1",
+  positions: { "1": 0, "2": 0, "3": 0 }
+};
+
+function updateCarousel(deckId) {
+  const cardsEl = document.getElementById(`cards-${deckId}`);
+  const dotsEl = document.getElementById(`dots-${deckId}`);
+  const pos = state.positions[deckId];
+  cardsEl.style.transform = `translateX(-${pos * 100}%)`;
+  Array.from(dotsEl.children).forEach((dot, i) => {
+    dot.classList.toggle('active', i === pos);
+  });
+  if (pos > 0) {
+    document.getElementById('swipeHint').classList.add('hidden');
+  }
+}
+
+function switchDeck(deckId) {
+  state.currentDeck = deckId;
+  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.deck === deckId));
+  document.querySelectorAll('.deck').forEach(d => d.classList.toggle('active', d.dataset.deckId === deckId));
+  if (state.positions[deckId] === 0) {
+    document.getElementById('swipeHint').classList.remove('hidden');
+  }
+}
+
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', () => switchDeck(tab.dataset.deck));
+});
+
+let touchStartX = null, touchStartY = null;
+const SWIPE_THRESHOLD = 50;
+const MAX_VERTICAL_SLOP = 80;
+
+document.getElementById('deckContainer').addEventListener('touchstart', (e) => {
+  touchStartX = e.touches[0].clientX;
+  touchStartY = e.touches[0].clientY;
+}, { passive: true });
+
+document.getElementById('deckContainer').addEventListener('touchend', (e) => {
+  if (touchStartX === null) return;
+  const endX = e.changedTouches[0].clientX;
+  const endY = e.changedTouches[0].clientY;
+  const dx = endX - touchStartX;
+  const dy = endY - touchStartY;
+  if (Math.abs(dx) > SWIPE_THRESHOLD && Math.abs(dy) < MAX_VERTICAL_SLOP) {
+    const deck = state.currentDeck;
+    const maxPos = DECKS[deck].length - 1;
+    if (dx < 0 && state.positions[deck] < maxPos) {
+      state.positions[deck]++;
+      updateCarousel(deck);
+    } else if (dx > 0 && state.positions[deck] > 0) {
+      state.positions[deck]--;
+      updateCarousel(deck);
+    }
+  }
+  touchStartX = null;
+}, { passive: true });
+
+document.addEventListener('keydown', (e) => {
+  const deck = state.currentDeck;
+  const maxPos = DECKS[deck].length - 1;
+  if (e.key === 'ArrowRight' && state.positions[deck] < maxPos) {
+    state.positions[deck]++;
+    updateCarousel(deck);
+  } else if (e.key === 'ArrowLeft' && state.positions[deck] > 0) {
+    state.positions[deck]--;
+    updateCarousel(deck);
+  } else if (e.key === '1' || e.key === '2' || e.key === '3') {
+    switchDeck(e.key);
+  }
+});
+
+document.addEventListener('gesturestart', (e) => e.preventDefault());
+document.addEventListener('dblclick', (e) => e.preventDefault());
+</script>
+
+</body>
+</html>
